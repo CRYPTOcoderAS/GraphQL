@@ -8,17 +8,17 @@
     "dev": "nodemon src/index.js",
     "lint": "eslint .",
     "test": "jest",
-    "build": "npm install && netlify-lambda build functions",
-    "build:functions": "netlify-lambda build functions",
-    "start:lambda": "netlify-lambda serve functions",
+    "build": "netlify-lambda build functions -c webpack.config.js",
+    "start:lambda": "netlify-lambda serve functions -c webpack.config.js",
     "seed": "node src/seeds/seed.js"
   },
   "dependencies": {
-    "apollo-server-lambda": "^3.12.1",
     "apollo-server-express": "^3.12.1",
+    "apollo-server-lambda": "^3.12.1",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "graphql": "^16.8.1",
+    "graphql-tag": "^2.12.6",
     "ioredis": "^5.5.0",
     "mongoose": "^8.0.3",
     "netlify-lambda": "^2.0.16"

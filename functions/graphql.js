@@ -1,13 +1,90 @@
 const { ApolloServer } = require('apollo-server-lambda');
 const mongoose = require('mongoose');
-const { readFileSync } = require('fs');
-const { resolve } = require('path');
-const resolvers = require('../src/resolvers/resolvers');
+const { gql } = require('graphql-tag');
 
-// Read the schema
-const typeDefs = readFileSync(resolve(__dirname, '../src/schema/schema.graphql'), {
-  encoding: 'utf-8'
-});
+// Import schema as a string
+const typeDefs = gql`
+  type Query {
+    getCustomerSpending(customerId: ID!): CustomerSpending!
+    getTopSellingProducts(limit: Int!): [ProductSales!]!
+    getSalesAnalytics(startDate: String!, endDate: String!): SalesAnalytics!
+    getOrdersByStatus(status: String!): [Order!]!
+    getCustomerOrders(customerId: ID!, page: Int!, limit: Int!): OrdersWithPagination!
+  }
+
+  type Mutation {
+    placeOrder(input: OrderInput!): Order!
+  }
+
+  type CustomerSpending {
+    customerId: ID!
+    totalSpent: Float!
+    averageOrderValue: Float!
+    lastOrderDate: String
+  }
+
+  type ProductSales {
+    productId: ID!
+    name: String!
+    totalSold: Int!
+  }
+
+  type SalesAnalytics {
+    totalRevenue: Float!
+    completedOrders: Int!
+    canceledOrders: Int!
+    pendingOrders: Int!
+    averageOrderValue: Float!
+    categoryBreakdown: [CategoryBreakdown!]!
+  }
+
+  type CategoryBreakdown {
+    category: String!
+    revenue: Float!
+    count: Int!
+  }
+
+  type Order {
+    _id: ID!
+    customerId: ID!
+    products: [OrderProduct!]!
+    totalAmount: Float!
+    orderDate: String!
+    status: String!
+  }
+
+  type OrderProduct {
+    productId: ID!
+    quantity: Int!
+    priceAtPurchase: Float!
+  }
+
+  type OrdersWithPagination {
+    orders: [Order!]!
+    pagination: PaginationInfo!
+  }
+
+  type PaginationInfo {
+    total: Int!
+    page: Int!
+    pages: Int!
+    hasNext: Boolean!
+    hasPrev: Boolean!
+  }
+
+  input OrderInput {
+    customerId: ID!
+    products: [OrderProductInput!]!
+  }
+
+  input OrderProductInput {
+    productId: ID!
+    quantity: Int!
+  }
+`;
+
+// Import resolvers
+const resolvers = require('../src/resolvers/resolvers');
 
 // Connect to MongoDB
 let cachedDb = null;

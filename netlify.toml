@@ -1,19 +1,15 @@
 [build]
   command = "npm run build"
-  publish = "dist"
-  functions = "functions"
-
-[dev]
-  command = "npm run dev"
-  port = 8888
-  publish = "dist"
+  functions = "built-functions"
 
 [[redirects]]
   from = "/graphql"
   to = "/.netlify/functions/graphql"
   status = 200
+  force = true
 
 [functions]
+  directory = "built-functions"
   node_bundler = "esbuild"
 
 [build.environment]
