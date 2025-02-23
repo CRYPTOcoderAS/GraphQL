@@ -1,0 +1,30 @@
+# Get Customer Spending
+query GetCustomerSpending($customerId: ID!) {
+  getCustomerSpending(customerId: $customerId) {
+    customerId
+    totalSpent
+    averageOrderValue
+    lastOrderDate
+  }
+}
+
+# Get Top Selling Products
+query GetTopSellingProducts($limit: Int!) {
+  getTopSellingProducts(limit: $limit) {
+    productId
+    name
+    totalSold
+  }
+}
+
+# Get Sales Analytics
+query GetSalesAnalytics($startDate: String!, $endDate: String!) {
+  getSalesAnalytics(startDate: $startDate, endDate: $endDate) {
+    totalRevenue
+    completedOrders
+    categoryBreakdown {
+      category
+      revenue
+    }
+  }
+} 
