@@ -1,8 +1,14 @@
-const orderService = require('../../services/orderService');
+const OrderService = require('../../services/orderService');
 
 module.exports = {
   Query: {
-    getSalesAnalytics: (_, { startDate, endDate }) => 
-      orderService.getSalesAnalytics(startDate, endDate)
+    getSalesAnalytics: async (_, { startDate, endDate }, { redis }) => {
+      const orderService = new OrderService(redis);
+      return orderService.getSalesAnalytics(startDate, endDate);
+    },
+    getOrdersByStatus: async (_, { status }, { redis }) => {
+      const orderService = new OrderService(redis);
+      return orderService.getOrdersByStatus(status);
+    }
   }
 }; 

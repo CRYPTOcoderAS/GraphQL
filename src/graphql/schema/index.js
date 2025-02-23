@@ -1,16 +1,23 @@
+const { makeExecutableSchema } = require('@graphql-tools/schema');
 const { gql } = require('apollo-server-express');
 const customerType = require('./types/customerType');
-const productType = require('./types/productType');
 const orderType = require('./types/orderType');
+const productType = require('./types/productType');
+const resolvers = require('../resolvers');
 
-const baseSchema = gql`
+const rootTypeDefs = gql`
   type Query {
-    _: Boolean
+    _empty: String
   }
 
   type Mutation {
-    _: Boolean
+    _empty: String
   }
 `;
 
-module.exports = [baseSchema, customerType, productType, orderType]; 
+const schema = makeExecutableSchema({
+  typeDefs: [rootTypeDefs, customerType, orderType, productType],
+  resolvers
+});
+
+module.exports = schema; 

@@ -1,4 +1,4 @@
-# Get Customer Spending
+# Customer Queries
 query GetCustomerSpending($customerId: ID!) {
   getCustomerSpending(customerId: $customerId) {
     customerId
@@ -8,7 +8,7 @@ query GetCustomerSpending($customerId: ID!) {
   }
 }
 
-# Get Top Selling Products
+# Product Queries
 query GetTopSellingProducts($limit: Int!) {
   getTopSellingProducts(limit: $limit) {
     productId
@@ -17,14 +17,74 @@ query GetTopSellingProducts($limit: Int!) {
   }
 }
 
-# Get Sales Analytics
+# Sales Analytics
 query GetSalesAnalytics($startDate: String!, $endDate: String!) {
   getSalesAnalytics(startDate: $startDate, endDate: $endDate) {
     totalRevenue
     completedOrders
+    canceledOrders
+    pendingOrders
+    averageOrderValue
     categoryBreakdown {
       category
       revenue
+      count
+    }
+  }
+}
+
+# Order Status Query
+query GetOrdersByStatus($status: String!) {
+  getOrdersByStatus(status: $status) {
+    _id
+    customerId
+    products {
+      productId
+      quantity
+      priceAtPurchase
+    }
+    totalAmount
+    orderDate
+    status
+  }
+}
+
+# Bonus: Place Order Mutation
+mutation PlaceOrder($input: OrderInput!) {
+  placeOrder(input: $input) {
+    _id
+    customerId
+    products {
+      productId
+      quantity
+      priceAtPurchase
+    }
+    totalAmount
+    orderDate
+    status
+  }
+}
+
+# Bonus: Get Customer Orders with Pagination
+query GetCustomerOrders($customerId: ID!, $page: Int!, $limit: Int!) {
+  getCustomerOrders(customerId: $customerId, page: $page, limit: $limit) {
+    orders {
+      _id
+      products {
+        productId
+        quantity
+        priceAtPurchase
+      }
+      totalAmount
+      orderDate
+      status
+    }
+    pagination {
+      total
+      page
+      pages
+      hasNext
+      hasPrev
     }
   }
 } 

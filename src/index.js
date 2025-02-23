@@ -1,27 +1,31 @@
 require('dotenv').config();
 const express = require('express');
 const { ApolloServer } = require('apollo-server-express');
-const connectDB = require('./config/database');
-const typeDefs = require('./graphql/schema');
-const resolvers = require('./graphql/resolvers');
+const mongoose = require('mongoose');
+const schema = require('./graphql/schema');
+const Redis = require('ioredis');
+
+// Initialize Redis client for caching
+const redis = new Redis(process.env.REDIS_URL);
 
 async function startServer() {
   const app = express();
 
   // Connect to MongoDB
-  await connectDB();
+  await mongoose.connect(process.env.MONGODB_URI);
+  console.log('Connected to MongoDB');
 
   // Create Apollo Server
   const server = new ApolloServer({
-    typeDefs,
-    resolvers,
+    schema,
+    context: { redis },
     formatError: (error) => {
-      console.error(error);
+      console.error('GraphQL Error:', error);
       return {
         message: error.message,
-        status: error.extensions?.code || 'INTERNAL_SERVER_ERROR',
+        status: error.extensions?.code || 'INTERNAL_SERVER_ERROR'
       };
-    },
+    }
   });
 
   await server.start();
@@ -29,11 +33,8 @@ async function startServer() {
 
   const PORT = process.env.PORT || 4000;
   app.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}${server.graphqlPath}`);
+    console.log(`🚀 Server ready at http://localhost:${PORT}${server.graphqlPath}`);
   });
 }
 
-startServer().catch(error => {
-  console.error('Error starting server:', error);
-  process.exit(1);
-}); 
+startServer().catch(console.error); 
