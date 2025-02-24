@@ -1,13 +1,14 @@
 const path = require('path');
+const webpack = require('webpack');
 
 module.exports = {
-  target: 'node',
   mode: 'production',
+  target: 'node',
   entry: {
-    graphql: './functions/graphql.js'
+    graphql: path.join(__dirname, 'functions/graphql.js')
   },
   output: {
-    path: path.join(__dirname, 'dist/functions'),
+    path: path.join(__dirname, 'built-functions'),
     filename: '[name].js',
     libraryTarget: 'commonjs2'
   },
@@ -15,7 +16,7 @@ module.exports = {
     rules: [
       {
         test: /\.m?js$/,
-        exclude: /node_modules\/(?!(mongodb|mongoose|@aws-sdk|@mongodb-js)\/)/,
+        exclude: /node_modules\/(?!(@aws-sdk|@smithy)\/)/,
         use: {
           loader: 'babel-loader',
           options: {
@@ -26,9 +27,10 @@ module.exports = {
               }]
             ],
             plugins: [
+              '@babel/plugin-transform-runtime',
               '@babel/plugin-proposal-nullish-coalescing-operator',
               '@babel/plugin-proposal-optional-chaining',
-              '@babel/plugin-transform-runtime'
+              '@babel/plugin-transform-class-properties'
             ]
           }
         }
@@ -36,8 +38,20 @@ module.exports = {
     ]
   },
   resolve: {
-    extensions: ['.js'],
-    modules: ['node_modules']
+    extensions: ['.js', '.mjs']
   },
-  externals: ['aws-sdk', 'mongodb-client-encryption']
+  optimization: {
+    minimize: false
+  },
+  plugins: [
+    new webpack.IgnorePlugin({
+      resourceRegExp: /^(aws-crt|@aws-sdk\/signature-v4-crt)$/
+    })
+  ],
+  externals: [
+    'aws-sdk',
+    'mongodb-client-encryption',
+    '@aws-sdk/signature-v4-crt',
+    'aws-crt'
+  ]
 };
