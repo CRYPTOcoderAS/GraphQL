@@ -111,54 +111,22 @@ async function connectToDatabase() {
   return db;
 }
 
-let apolloServer = null;
+const server = new ApolloServer({
+  typeDefs,
+  resolvers,
+  context: async () => {
+    const db = await connectToDatabase();
+    return { db };
+  },
+  playground: true,
+  introspection: true
+});
 
-exports.handler = async function (event, context) {
-  context.callbackWaitsForEmptyEventLoop = false;
-  
-  try {
-    // Create Apollo Server if it doesn't exist
-    if (!apolloServer) {
-      apolloServer = new ApolloServer({
-        typeDefs,
-        resolvers,
-        context: async () => {
-          const db = await connectToDatabase();
-          return { db };
-        },
-        playground: true,
-        introspection: true
-      });
-    }
-
-    const handler = apolloServer.createHandler();
-    
-    // Add CORS headers to the response
-    const response = await new Promise((resolve, reject) => {
-      handler(event, context, (err, result) => {
-        if (err) reject(err);
-        else resolve(result);
-      });
-    });
-
-    return {
-      ...response,
-      headers: {
-        ...response.headers,
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS'
-      }
-    };
-  } catch (error) {
-    console.error('GraphQL Error:', error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: 'Internal Server Error' }),
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*'
-      }
-    };
+exports.handler = server.createHandler({
+  cors: {
+    origin: '*',
+    credentials: true,
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
   }
-};
+});
