@@ -8,9 +8,7 @@
     "dev": "nodemon src/functions/graphql.js",
     "lint": "eslint .",
     "test": "jest",
-    "build": "webpack --config webpack.config.js",
-    "vercel-build": "webpack --config webpack.config.js",
-    "netlify-build": "netlify-lambda build src/functions",
+    "build": "mkdir -p dist && touch dist/index.html",
     "start:lambda": "netlify-lambda serve functions -c webpack.config.js",
     "seed": "node src/seeds/seed.js"
   },
