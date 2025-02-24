@@ -86,67 +86,67 @@ npm run seed
 - Pagination support for large data sets
 - MongoDB indexes for optimized queries
 
-## Contributing
 
-1. Fork the repository
-2. Create your feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
 
-## Deployment
+## Example API Requests
 
-### Deploying to Netlify
+Below are example curl commands to interact with the API endpoints:
 
-1. Fork and clone the repository:
-   ```bash
-   git clone https://github.com/CRYPTOcoderAS/GraphQL.git
-   cd GraphQL
-   ```
-
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Deploy to Netlify:
-   - Connect your GitHub repository to Netlify
-   - Configure the following build settings:
-     - Build command: `npm run build`
-     - Publish directory: `dist`
-     - Functions directory: `functions`
-
-4. Set up environment variables in Netlify:
-   - Go to Site settings > Build & deploy > Environment variables
-   - Add the following variables:
-     ```
-     MONGODB_URI=your_mongodb_connection_string
-     REDIS_URL=your_redis_connection_string
-     ```
-
-5. Your API will be available at:
-   ```
-   https://your-site-name.netlify.app/.netlify/functions/graphql
-   ```
-
-### Testing the Deployed API
-
-You can test your API using the GraphQL Playground at:
-```
-https://your-site-name.netlify.app/.netlify/functions/graphql
+### 1. Get Customer Spending
+Retrieve spending analytics for a specific customer.
+```bash
+curl -X POST \
+  http://localhost:4000/graphql \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "query": "query GetCustomerSpending($customerId: ID!) { getCustomerSpending(customerId: $customerId) { customerId totalSpent averageOrderValue lastOrderDate } }",
+    "variables": {
+      "customerId": "7895595e-7f25-47fe-a6f8-94b31bfab736"
+    }
+  }'
 ```
 
-Example query:
-```graphql
-query {
-  getTopSellingProducts(limit: 5) {
-    productId
-    name
-    totalSold
-  }
-}
+### 2. Get Top Selling Products
+Get a list of top-selling products with customizable limit.
+```bash
+curl -X POST \
+  http://localhost:4000/graphql \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "query": "query GetTopSellingProducts($limit: Int!) { getTopSellingProducts(limit: $limit) { productId name totalSold } }",
+    "variables": {
+      "limit": 5
+    }
+  }'
 ```
 
-## License
+### 3. Get Sales Analytics
+Retrieve comprehensive sales analytics for a specific date range.
+```bash
+curl -X POST \
+  http://localhost:4000/graphql \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "query": "query GetSalesAnalytics($startDate: String!, $endDate: String!) { getSalesAnalytics(startDate: $startDate, endDate: $endDate) { totalRevenue completedOrders canceledOrders pendingOrders averageOrderValue categoryBreakdown { category revenue count } } }",
+    "variables": {
+      "startDate": "2024-01-01",
+      "endDate": "2025-02-28"
+    }
+  }'
+```
 
-MIT
+### 4. Get Orders By Status
+Fetch orders filtered by their current status.
+```bash
+curl -X POST \
+  http://localhost:4000/graphql \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "query": "query GetOrdersByStatus($status: String!) { getOrdersByStatus(status: $status) { _id customerId products { productId quantity priceAtPurchase } totalAmount orderDate status } }",
+    "variables": {
+      "status": "completed"
+    }
+  }'
+```
+
+
