@@ -1,4 +1,5 @@
-const { ApolloServer } = require('apollo-server-lambda');
+const { ApolloServer } = require('@apollo/server');
+const { startServerAndCreateLambdaHandler, handlers } = require('@as-integrations/aws-lambda');
 const mongoose = require('mongoose');
 const typeDefs = require('../src/graphql/schema/typeDefs');
 const resolvers = require('../src/graphql/resolvers');
@@ -26,22 +27,21 @@ async function connectToDatabase() {
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  context: async ({ event, context }) => {
-    await connectToDatabase();
-    return {
-      headers: event.headers,
-      functionName: context.functionName,
-      event,
-      context,
-    };
-  },
-  playground: true,
-  introspection: true
+  introspection: true,
 });
 
-exports.handler = server.createHandler({
-  cors: {
-    origin: '*',
-    credentials: true,
-  },
-}); 
+exports.handler = startServerAndCreateLambdaHandler(
+  server,
+  handlers.createAPIGatewayProxyEventV2RequestHandler(),
+  {
+    context: async ({ event, context }) => {
+      await connectToDatabase();
+      return {
+        headers: event.headers,
+        functionName: context.functionName,
+        event,
+        context,
+      };
+    },
+  }
+); 
