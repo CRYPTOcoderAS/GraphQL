@@ -1,6 +1,7 @@
 [build]
   command = "npm run build"
-  functions = "built-functions"
+  functions = "functions"
+  publish = "dist"
 
 [[redirects]]
   from = "/graphql"
@@ -9,7 +10,7 @@
   force = true
 
 [functions]
-  directory = "built-functions"
+  directory = "functions"
   node_bundler = "esbuild"
 
 [build.environment]
