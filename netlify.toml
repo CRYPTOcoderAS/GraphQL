@@ -1,7 +1,7 @@
 [build]
   command = "npm run build"
   functions = "functions"
-  publish = "dist"
+  publish = "public"
 
 [[redirects]]
   from = "/graphql"
@@ -10,8 +10,8 @@
   force = true
 
 [functions]
-  directory = "functions"
+  external_node_modules = ["@apollo/server"]
   node_bundler = "esbuild"
 
 [build.environment]
-  NODE_VERSION = "20" 
+  NODE_VERSION = "18" 

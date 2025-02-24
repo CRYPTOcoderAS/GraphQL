@@ -1,15 +1,8 @@
 const path = require('path');
-const webpack = require('webpack');
-const nodeExternals = require('webpack-node-externals');
 
 module.exports = {
   target: 'node',
   mode: 'production',
-  optimization: { minimize: false },
-  node: {
-    __dirname: false,
-    __filename: false
-  },
   entry: {
     graphql: './functions/graphql.js'
   },
@@ -21,27 +14,30 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.js$/,
-        exclude: /node_modules/,
+        test: /\.m?js$/,
+        exclude: /node_modules\/(?!(mongodb|mongoose|@aws-sdk|@mongodb-js)\/)/,
         use: {
           loader: 'babel-loader',
           options: {
             presets: [
-              ['@babel/preset-env', { targets: { node: '14' } }]
+              ['@babel/preset-env', {
+                targets: { node: '20' },
+                modules: 'commonjs'
+              }]
+            ],
+            plugins: [
+              '@babel/plugin-proposal-nullish-coalescing-operator',
+              '@babel/plugin-proposal-optional-chaining',
+              '@babel/plugin-transform-runtime'
             ]
           }
         }
-      },
-    ],
+      }
+    ]
   },
   resolve: {
     extensions: ['.js'],
-    modules: [path.resolve(__dirname, 'src'), 'node_modules']
+    modules: ['node_modules']
   },
-  externals: [nodeExternals()],
-  plugins: [
-    new webpack.IgnorePlugin({
-      resourceRegExp: /^(?:async_hooks|fs|path|url|stream|crypto|http|net|dns|os|tls|https|zlib|events|util|buffer)$/
-    })
-  ]
+  externals: ['aws-sdk', 'mongodb-client-encryption']
 };
