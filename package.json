@@ -8,7 +8,7 @@
     "dev": "netlify dev",
     "lint": "eslint .",
     "test": "jest",
-    "build": "# skip build",
+    "build": "echo 'No build step required'",
     "seed": "node src/seeds/seed.js"
   },
   "dependencies": {
