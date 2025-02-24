@@ -31,8 +31,23 @@ module.exports = gql`
     averageOrderValue: Float!
   }
 
+  input OrderProductInput {
+    productId: ID!
+    quantity: Int!
+    price: Float!
+  }
+
+  input OrderInput {
+    customerId: ID!
+    products: [OrderProductInput!]!
+  }
+
   extend type Query {
     getSalesAnalytics(startDate: String!, endDate: String!): SalesAnalytics
     getOrdersByStatus(status: String!): [Order!]!
+  }
+
+  extend type Mutation {
+    placeOrder(input: OrderInput!): Order!
   }
 `; 

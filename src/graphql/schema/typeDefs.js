@@ -44,11 +44,26 @@ const typeDefs = gql`
     priceAtPurchase: Float!
   }
 
+  input OrderProductInput {
+    productId: ID!
+    quantity: Int!
+    price: Float!
+  }
+
+  input OrderInput {
+    customerId: ID!
+    products: [OrderProductInput!]!
+  }
+
   type Query {
     getCustomerSpending(customerId: ID!): CustomerSpending
     getTopSellingProducts(limit: Int!): [TopProduct]
     getSalesAnalytics(startDate: String!, endDate: String!): SalesAnalytics
     getOrdersByStatus(status: String!): [Order!]!
+  }
+
+  type Mutation {
+    placeOrder(input: OrderInput!): Order!
   }
 `;
 

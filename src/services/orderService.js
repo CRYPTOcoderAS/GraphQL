@@ -44,41 +44,79 @@ class OrderService {
   }
 
   async placeOrder(input) {
-    // Validate products and calculate total
-    let totalAmount = 0;
-    const productsWithPrice = [];
-
-    for (const item of input.products) {
-      const product = await Product.findById(item.productId);
-      if (!product) {
-        throw new Error(`Product ${item.productId} not found`);
+    try {
+      console.log('Processing order input:', JSON.stringify(input, null, 2));
+      
+      // First, let's create the product if it doesn't exist
+      for (const item of input.products) {
+        console.log('Finding product:', item.productId);
+        let product = await Product.findById(item.productId).exec();
+        
+        if (!product) {
+          console.log('Product not found, creating new product:', item.productId);
+          product = new Product({
+            _id: item.productId,
+            name: 'Auto-created Product',
+            price: item.price,
+            category: 'Auto-created',
+            stock: 100
+          });
+          await product.save();
+          console.log('Created new product:', product);
+        }
       }
 
-      const priceAtPurchase = product.price;
-      totalAmount += priceAtPurchase * item.quantity;
+      // Now calculate total and create order
+      let totalAmount = 0;
+      const productsWithPrice = [];
 
-      productsWithPrice.push({
-        productId: item.productId,
-        quantity: item.quantity,
-        priceAtPurchase
+      for (const item of input.products) {
+        const product = await Product.findById(item.productId).exec();
+        console.log('Using product:', product);
+
+        const priceAtPurchase = item.price || product.price;
+        totalAmount += priceAtPurchase * item.quantity;
+
+        productsWithPrice.push({
+          productId: item.productId,
+          quantity: item.quantity,
+          priceAtPurchase
+        });
+      }
+
+      console.log('Creating order with:', {
+        customerId: input.customerId,
+        products: productsWithPrice,
+        totalAmount
       });
+
+      // Create and save the order
+      const order = new Order({
+        customerId: input.customerId,
+        products: productsWithPrice,
+        totalAmount,
+        orderDate: new Date(),
+        status: 'pending'
+      });
+
+      const savedOrder = await order.save();
+      console.log('Saved order:', savedOrder);
+      
+      // Populate the products for the response
+      const populatedOrder = await Order.findById(savedOrder._id)
+        .populate('products.productId')
+        .exec();
+      console.log('Populated order:', populatedOrder);
+
+      // Invalidate relevant caches
+      await redisService.del(redisService.generateKey('orders-by-status', { status: 'pending' }));
+      await redisService.del(redisService.generateKey('customer-spending', { customerId: input.customerId }));
+
+      return populatedOrder;
+    } catch (error) {
+      console.error('Error in placeOrder:', error);
+      throw error;
     }
-
-    const order = new Order({
-      customerId: input.customerId,
-      products: productsWithPrice,
-      totalAmount,
-      orderDate: new Date(),
-      status: 'pending'
-    });
-
-    await order.save();
-
-    // Invalidate relevant caches
-    await redisService.del(redisService.generateKey('orders-by-status', { status: 'pending' }));
-    await redisService.del(redisService.generateKey('customer-spending', { customerId: input.customerId }));
-
-    return order;
   }
 
   async getSalesAnalytics(startDate, endDate) {

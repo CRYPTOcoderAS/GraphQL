@@ -3,7 +3,7 @@ const { Schema } = mongoose;
 
 const orderProductSchema = new Schema({
   productId: {
-    type: Schema.Types.ObjectId,
+    type: String,
     ref: 'Product',
     required: true
   },
@@ -21,7 +21,7 @@ const orderProductSchema = new Schema({
 
 const orderSchema = new Schema({
   customerId: {
-    type: Schema.Types.ObjectId,
+    type: String,
     ref: 'Customer',
     required: true
   },
