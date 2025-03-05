@@ -17,7 +17,8 @@ class AnalyticsService {
       customerId,
       totalSpent,
       averageOrderValue,
-      lastOrderDate
+      lastOrderDate,
+      name: orders.length? orders[0].customerName : null
     };
 
     await redisService.set(cacheKey, result);

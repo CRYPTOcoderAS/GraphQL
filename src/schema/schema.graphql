@@ -15,6 +15,7 @@ type CustomerSpending {
   totalSpent: Float!
   averageOrderValue: Float!
   lastOrderDate: String
+  name: String!
 }
 
 type ProductSales {

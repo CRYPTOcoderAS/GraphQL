@@ -6,6 +6,7 @@ const typeDefs = gql`
     totalSpent: Float!
     averageOrderValue: Float!
     lastOrderDate: String!
+    name: String!
   }
 
   type TopProduct {

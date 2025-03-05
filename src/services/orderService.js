@@ -125,8 +125,11 @@ class OrderService {
     
     if (cachedData) return cachedData;
 
+    // Convert dates to start and end of day
     const start = new Date(startDate);
+    start.setUTCHours(0, 0, 0, 0);
     const end = new Date(endDate);
+    end.setUTCHours(23, 59, 59, 999);
 
     const analytics = await Order.aggregate([
       {
@@ -209,19 +212,7 @@ class OrderService {
     return response;
   }
 
-  async getOrdersByStatus(status) {
-    const cacheKey = this.cacheService.generateKey('orders_by_status', { status });
-    
-    const cachedData = await this.cacheService.get(cacheKey);
-    if (cachedData) {
-      return cachedData;
-    }
 
-    const orders = await Order.find({ status });
-    
-    await this.cacheService.set(cacheKey, orders);
-    return orders;
-  }
 }
 
 module.exports = OrderService; 

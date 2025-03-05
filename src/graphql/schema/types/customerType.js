@@ -6,6 +6,7 @@ module.exports = gql`
     totalSpent: Float!
     averageOrderValue: Float!
     lastOrderDate: String!
+    name: String!
   }
 
   extend type Query {

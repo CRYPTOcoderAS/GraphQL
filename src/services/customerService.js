@@ -21,7 +21,8 @@ class CustomerService {
           _id: '$customerId',
           totalSpent: { $sum: '$totalAmount' },
           averageOrderValue: { $avg: '$totalAmount' },
-          lastOrderDate: { $max: '$orderDate' }
+          lastOrderDate: { $max: '$orderDate' },
+          name: { $first: '$customerName' }
         }
       }
     ]);
@@ -39,7 +40,8 @@ class CustomerService {
       customerId,
       totalSpent: customerOrders[0].totalSpent,
       averageOrderValue: customerOrders[0].averageOrderValue,
-      lastOrderDate: customerOrders[0].lastOrderDate.toISOString()
+      lastOrderDate: customerOrders[0].lastOrderDate.toISOString(),
+      name: customer.name
     };
   }
 }
